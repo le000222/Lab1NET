@@ -6,25 +6,26 @@ namespace Lab1
 {
     class Lab1
     {
-        static IList<string> words = new List<string>();
-        static IList<string> sortedWords = new List<string>();
-        static IList<string> linqWords = new List<string>();
+        private static IList<string> words = new List<string>();
+        private static IList<string> sortedWords = new List<string>();
+        private static IList<string> linqWords = new List<string>();
+        
         static void Main()
         {
             int option;
             do {
                 printMenu();
                 option = userInput();
-                if (option == 0)
+                if (option == -1)
                 {
-                    Console.Write("Invalid input!!\n\n");
+                    Console.Write("Invalid input!!\n");
                 }
             } while(true);
         }
 
         public static void printMenu()
         {
-            Console.Write("1 - Import words from File\n" +
+            Console.Write("\n1 - Import words from File\n" +
             "2 - Bubble sort words\n" +
             "3 - LINQ/Lambda sort words\n" +
             "4 - Count the distinct words\n" +
@@ -32,12 +33,13 @@ namespace Lab1
             "6 - Reverse print the words\n" +
             "7 - Get and display words that end with ‘a’ and display the count\n" +
             "8 - Get and display words that include ‘m’ and display the count\n" +
-            "9 - Get and display words that are less than 4 characters long and include the letter ‘I’, and display the count\n" +
+            "9 - Get and display words that are less than 4 characters long and include the letter ‘i’, and display the count\n" +
             "x – Exit\n");
         }
         public static int userInput()
         {
-           
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            watch.Stop();
             Console.Write("Please enter your option: ");
             switch (Console.ReadLine())
             {
@@ -45,10 +47,22 @@ namespace Lab1
                     words = readFile(words);
                     break;
                 case "2": //bubble sort words
+                    if (!watch.IsRunning)
+                    {
+                        watch.Restart();
+                    }
                     sortedWords = BubbleSort(words);
+                    watch.Stop();
+                    Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
                     break;
                 case "3": //LINQ/Lambda sort words
+                    if (!watch.IsRunning)
+                    {
+                        watch.Restart();
+                    }
                     linqWords = LINQSort(words);
+                    watch.Stop();
+                    Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
                     break;
                 case "4": //Count distinct words
                     CountDistinct(words);
@@ -60,29 +74,27 @@ namespace Lab1
                     ReverseAllWords(words);
                     break;
                 case "7": //Get and display words that end with ‘a’ and display the count
-                    FilterList(0, "a");
+                    FilterListEndWith(words, "a");
                     break;
-                case "8": //Get and display words that include ‘m’ and display the count
-                    FilterList(0, "m");
+                case "8": //Get and display words that start with ‘m’ and display the count
+                    FilterListStartWith(words, "m");
                     break;
-                case "9": //Get and display words that are less than 4 characters long and include the letter ‘I’, and display the count
-                    FilterList(4, "I");
+                case "9": //Get and display words that are less than 4 characters long and include the letter ‘i’, and display the count
+                    FilterListInclude(words, "i", 4);
                     break;
                 case "x": //Exit
                     System.Environment.Exit(1);
                     break;
                 default:
-                    return 0;
+                    return -1;
             }
-            return 1;
+            return 0;
         }
         public static IList<string> readFile(IList<string> words)
         {
             try
             {
-                // Create an instance of StreamReader to read from a file.
-                // The using statement also closes the StreamReader.
-                using (StreamReader sr = new StreamReader("C:\\Users\\phuon\\OneDrive - Algonquin College\\.NET\\Lab1NET\\Words1.txt"))
+                using (StreamReader sr = new StreamReader("C:\\Users\\phuon\\OneDrive - Algonquin College\\.NET\\Lab1NET\\Words.txt"))
                 {
                     string? line;
                     while ((line = sr.ReadLine()) != null)
@@ -95,7 +107,7 @@ namespace Lab1
             {
                 Console.WriteLine(e.Message);
             }
-            DisplayList(words);
+            Console.Write("There are " + CountWords(words) + " words in total\n");
             return words;
         }
         public static IList<string> BubbleSort(IList<string> words)
@@ -113,44 +125,56 @@ namespace Lab1
                     }
                 }
             }
-            DisplayList(copy);
-            //find how long this takes
             return copy;
         }
         public static IList<string> LINQSort(IList<string> words)
         {
-            var linqSortList = (from w in words orderby w descending select w).ToList();
-            DisplayList(linqSortList);
-
-            //find how long this takes
+            var linqSortList = words.OrderBy(w=>w).ToList();
             return words;
         }
         public static void CountDistinct(IList<string> words)
         {
-            var linqDistinctList = (from w in words select w).Distinct().ToList();
-            int numOfDistinct = 0;
-            foreach (var word in words)
-            {
-                numOfDistinct++;
-            }
-            DisplayList(linqDistinctList);
-            Console.WriteLine("Number of distinct words: " + numOfDistinct);
+            var linqDistinctList = words.Distinct().ToList();
+            Console.Write("There are " + CountWords(linqDistinctList) + " distinct words\n");
+            
         }
         private static void RetrieveFirst50()
         {
-
+            var first50 = words.Take(50).ToList();
+            Console.WriteLine("The first 50 words: ");
+            DisplayList(first50);
         }
         public static void ReverseAllWords(IList<string> words)
         {
-
+            var reverseList = words.Reverse().ToList();
+            DisplayList(reverseList);
         }
-        public static void FilterList(int length, string condition)
+        public static void FilterListEndWith(IList<string> words, string condition)
         {
-            DisplayCount();
+            var filterList = words.Where(w => w.EndsWith(condition)).ToList();
+            Console.WriteLine("There are " + CountWords(filterList) + " words that end with '" + condition + "':");
+            DisplayList(filterList);
         }
-        public static void DisplayCount()
+        public static void FilterListStartWith(IList<string> words, string condition)
         {
-
+            var filterList = words.Where(w => w.StartsWith(condition)).ToList();
+            Console.WriteLine("There are " + CountWords(filterList) + " words that start with '" + condition + "':");
+            DisplayList(filterList);
+        }
+        public static void FilterListInclude(IList<string> words, string condition, int length = 0)
+        {
+            var filterList = words.Where(w => w.Contains(condition) && w.Length < length).ToList();
+            Console.WriteLine("There are " + CountWords(filterList) + " words that have less than 4 characters and include '" + condition + "':");
+            DisplayList(filterList);
+        }
+        public static int CountWords(IList<string> words)
+        {
+            int numOfWords = 0;
+            foreach (var word in words)
+            {
+                numOfWords++;
+            }
+            return numOfWords;
         }
         public static IList<string> CopyList(IList<string> words)
         {
@@ -167,7 +191,6 @@ namespace Lab1
             {
                 Console.WriteLine(s);
             }
-            Console.WriteLine();
         }
     }
 }
