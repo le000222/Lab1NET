@@ -9,6 +9,7 @@ namespace Lab1
         private static IList<string> words = new List<string>();
         private static IList<string> sortedWords = new List<string>();
         private static IList<string> linqWords = new List<string>();
+        private static bool loadedFile = false;
         
         static void Main()
         {
@@ -40,53 +41,97 @@ namespace Lab1
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             watch.Stop();
-            Console.Write("Please enter your option: ");
-            switch (Console.ReadLine())
+            try
             {
-                case "1": //import word file
-                    words = readFile(words);
-                    break;
-                case "2": //bubble sort words
-                    if (!watch.IsRunning)
-                    {
-                        watch.Restart();
-                    }
-                    sortedWords = BubbleSort(words);
-                    watch.Stop();
-                    Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
-                    break;
-                case "3": //LINQ/Lambda sort words
-                    if (!watch.IsRunning)
-                    {
-                        watch.Restart();
-                    }
-                    linqWords = LINQSort(words);
-                    watch.Stop();
-                    Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
-                    break;
-                case "4": //Count distinct words
-                    CountDistinct(words);
-                    break;
-                case "5": //take first 50 words
-                    RetrieveFirst50();
-                    break;
-                case "6": //reverse print all the words
-                    ReverseAllWords(words);
-                    break;
-                case "7": //Get and display words that end with ‘a’ and display the count
-                    FilterListEndWith(words, "a");
-                    break;
-                case "8": //Get and display words that start with ‘m’ and display the count
-                    FilterListStartWith(words, "m");
-                    break;
-                case "9": //Get and display words that are less than 4 characters long and include the letter ‘i’, and display the count
-                    FilterListInclude(words, "i", 4);
-                    break;
-                case "x": //Exit
-                    System.Environment.Exit(1);
-                    break;
-                default:
-                    return -1;
+                Console.Write("Please enter your option: ");
+                switch (Console.ReadLine())
+                {
+                    case "1": //import word file
+                        if (loadedFile)
+                        {
+                            Console.WriteLine("File already loaded");
+                            return 0;
+                        }
+                        words = readFile(words);
+                        loadedFile = true;
+                        break;
+                    case "2": //bubble sort words
+                        if (!loadedFile)
+                        {
+                            throw new Exception();
+                        }
+                        if (!watch.IsRunning)
+                        {
+                            watch.Restart();
+                        }
+                        sortedWords = BubbleSort(words);
+                        watch.Stop();
+                        Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+                        break;
+                    case "3": //LINQ/Lambda sort words
+                        if (!loadedFile)
+                        {
+                            throw new Exception();
+                        }
+                        if (!watch.IsRunning)
+                        {
+                            watch.Restart();
+                        }
+                        linqWords = LINQSort(words);
+                        watch.Stop();
+                        Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+                        break;
+                    case "4": //Count distinct words
+                        if (!loadedFile)
+                        {
+                            throw new Exception();
+                        }
+                        CountDistinct(words);
+                        break;
+                    case "5": //take first 50 words
+                        if (!loadedFile)
+                        {
+                            throw new Exception();
+                        }
+                        RetrieveFirst50();
+                        break;
+                    case "6": //reverse print all the words
+                        if (!loadedFile)
+                        {
+                            throw new Exception();
+                        }
+                        ReverseAllWords(words);
+                        break;
+                    case "7": //Get and display words that end with ‘a’ and display the count
+                        FilterListEndWith(words, "a");
+                        if (!loadedFile)
+                        {
+                            throw new Exception();
+                        }
+                        break;
+                    case "8": //Get and display words that start with ‘m’ and display the count
+                        if (!loadedFile)
+                        {
+                            throw new Exception();
+                        }
+                        FilterListStartWith(words, "m");
+                        break;
+                    case "9": //Get and display words that are less than 4 characters long and include the letter ‘i’, and display the count
+                        if (!loadedFile)
+                        {
+                            throw new Exception();
+                        }
+                        FilterListInclude(words, "i", 4);
+                        break;
+                    case "x": //Exit
+                        System.Environment.Exit(1);
+                        break;
+                    default:
+                        return -1;
+                }
+            } catch (Exception e)
+            {
+                Console.Write("Please load words first by choosing option 1!!\n");
             }
             return 0;
         }
