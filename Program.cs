@@ -10,7 +10,7 @@ namespace Lab1
         private static IList<string> sortedWords = new List<string>();
         private static IList<string> linqWords = new List<string>();
         private static bool loadedFile = false;
-        
+
         static void Main()
         {
             int option;
@@ -21,7 +21,7 @@ namespace Lab1
                 {
                     Console.Write("Invalid input!!\n");
                 }
-            } while(true);
+            } while (true);
         }
 
         public static void printMenu()
@@ -34,7 +34,7 @@ namespace Lab1
             "6 - Reverse print the words\n" +
             "7 - Get and display words that end with ‘a’ and display the count\n" +
             "8 - Get and display words that include ‘m’ and display the count\n" +
-            "9 - Get and display words that are less than 4 characters long and include the letter ‘i’, and display the count\n" +
+            "9 - Get and display words that are less than 4 characters long and include the letter ‘I’, and display the count\n" +
             "x – Exit\n");
         }
         public static int userInput()
@@ -44,7 +44,7 @@ namespace Lab1
             try
             {
                 Console.Write("Please enter your option: ");
-                switch (Console.ReadLine())
+                switch (Console.ReadLine().Trim())
                 {
                     case "1": //import word file
                         if (loadedFile)
@@ -52,7 +52,7 @@ namespace Lab1
                             Console.WriteLine("File already loaded");
                             return 0;
                         }
-                        words = readFile(words);
+                        words = ReadFile(words);
                         loadedFile = true;
                         break;
                     case "2": //bubble sort words
@@ -114,14 +114,14 @@ namespace Lab1
                         {
                             throw new Exception();
                         }
-                        FilterListStartWith(words, "m");
+                        FilterListInclude(words, "m");
                         break;
                     case "9": //Get and display words that are less than 4 characters long and include the letter ‘i’, and display the count
                         if (!loadedFile)
                         {
                             throw new Exception();
                         }
-                        FilterListInclude(words, "i", 4);
+                        FilterListInclude(words, "I", 4);
                         break;
                     case "x": //Exit
                         System.Environment.Exit(1);
@@ -131,14 +131,15 @@ namespace Lab1
                 }
             } catch (Exception e)
             {
-                Console.Write("Please load words first by choosing option 1!!\n");
+                Console.WriteLine("Please load words first by choosing option 1!!");
             }
             return 0;
         }
-        public static IList<string> readFile(IList<string> words)
+        public static IList<string> ReadFile(IList<string> words)
         {
             try
             {
+                //using is safely used for intializing and disposing objects. Workds with obj that implements IDisposable
                 using (StreamReader sr = new StreamReader("C:\\Users\\phuon\\OneDrive - Algonquin College\\.NET\\Lab1NET\\Words.txt"))
                 {
                     string? line;
@@ -157,7 +158,7 @@ namespace Lab1
         }
         public static IList<string> BubbleSort(IList<string> words)
         {
-            IList< string> copy = CopyList(words);
+            IList<string> copy = CopyList(words);
             for (int i = 0; i < copy.Count - 1; i++)
             {
                 for (int j = 0; j < copy.Count - i - 1; j++)
@@ -174,14 +175,14 @@ namespace Lab1
         }
         public static IList<string> LINQSort(IList<string> words)
         {
-            var linqSortList = words.OrderBy(w=>w).ToList();
+            var linqSortList = words.OrderBy(w => w).ToList();
             return words;
         }
         public static void CountDistinct(IList<string> words)
         {
             var linqDistinctList = words.Distinct().ToList();
             Console.Write("There are " + CountWords(linqDistinctList) + " distinct words\n");
-            
+
         }
         private static void RetrieveFirst50()
         {
@@ -208,7 +209,16 @@ namespace Lab1
         }
         public static void FilterListInclude(IList<string> words, string condition, int length = 0)
         {
-            var filterList = words.Where(w => w.Contains(condition) && w.Length < length).ToList();
+            var filterList = words.Where(w => {
+                if (length == 0)
+                {
+                    return w.Contains(condition);
+                }
+                else
+                {
+                    return w.Contains(condition) && w.Length < length;
+                }
+            }).ToList();
             Console.WriteLine("There are " + CountWords(filterList) + " words that have less than 4 characters and include '" + condition + "':");
             DisplayList(filterList);
         }
